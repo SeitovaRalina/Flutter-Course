@@ -18,7 +18,7 @@ class MenuCategories extends StatelessWidget {
         menuItems.where((item) => item.categoryId == categoryIndex).toList();
     return Padding(
       padding: const EdgeInsets.symmetric(
-        horizontal: 32.0,
+        horizontal: 16.0,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
