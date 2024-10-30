@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_course/src/features/menu/models/menu_category.dart';
-
-import 'package:flutter_course/src/features/menu/models/menu_item.dart';
-import 'package:flutter_course/src/features/menu/view/widgets/menu_item_card.dart';
+import 'package:flutter_course/src/features/menu/view/widgets/menu_categories.dart';
 import 'package:flutter_course/src/theme/app_colors.dart';
 
 class MenuScreen extends StatefulWidget {
@@ -57,11 +55,9 @@ class _MenuScreenState extends State<MenuScreen> {
       currentCategoryIndex = index;
     });
 
-    double scrollTo = index * 610;
-    _categoryScrollController.animateTo(
+    double scrollTo = index * 500;
+    _scrollController.jumpTo(
       scrollTo,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
     );
   }
 
@@ -85,23 +81,7 @@ class _MenuScreenState extends State<MenuScreen> {
                 controller: _scrollController,
                 itemCount: categories.length,
                 itemBuilder: (context, index) {
-                  final category = categories[index];
-                  final items = menuItems
-                      .where((item) => item.categoryId == index)
-                      .toList();
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _buildCategoryTitle(category.title),
-                        _buildItemGrid(items),
-                      ],
-                    ),
-                  );
+                  return MenuCategories(categoryIndex: index);
                 },
               ),
             ),
@@ -137,36 +117,6 @@ class _MenuScreenState extends State<MenuScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildCategoryTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16.0),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 32,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildItemGrid(List<MenuItem> items) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-        mainAxisExtent: 210,
-      ),
-      itemCount: items.length,
-      itemBuilder: (context, itemIndex) {
-        return MenuItemCard(item: items[itemIndex]);
-      },
     );
   }
 }

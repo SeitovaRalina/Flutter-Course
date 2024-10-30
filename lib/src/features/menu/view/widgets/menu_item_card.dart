@@ -49,7 +49,7 @@ class _MenuItemCardState extends State<MenuItemCard> {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Text(
         widget.item.title,
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        style: Theme.of(context).textTheme.titleMedium,
       ),
     );
   }
@@ -57,12 +57,13 @@ class _MenuItemCardState extends State<MenuItemCard> {
   Widget _buildQuantityControls() {
     return SizedBox(
       height: 24,
-      child:
-          showQuantityButtons ? _buildAdjustableQuantity() : _buildAddButton(),
+      child: showQuantityButtons
+          ? _buildQuantitySelector()
+          : _buildBuyButton(),
     );
   }
 
-  Widget _buildAdjustableQuantity() {
+  Widget _buildQuantitySelector() {
     return Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.end,
@@ -143,16 +144,13 @@ class _MenuItemCardState extends State<MenuItemCard> {
         alignment: Alignment.center,
         child: Text(
           '$_quantity',
-          style: const TextStyle(
-            color: AppColors.white,
-            fontSize: 12,
-          ),
+          style: Theme.of(context).textTheme.labelMedium!.copyWith(color: AppColors.white),
         ),
       ),
     );
   }
 
-  Widget _buildAddButton() {
+  Widget _buildBuyButton() {
     return SizedBox(
       height: 24,
       child: TextButton(
@@ -168,10 +166,7 @@ class _MenuItemCardState extends State<MenuItemCard> {
         child: Center(
           child: Text(
             '${widget.item.price} руб',
-            style: const TextStyle(
-              color: AppColors.white,
-              fontSize: 12,
-            ),
+            style: Theme.of(context).textTheme.labelMedium!.copyWith(color: AppColors.white),
           ),
         ),
       ),
