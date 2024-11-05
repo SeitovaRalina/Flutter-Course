@@ -50,6 +50,7 @@ class _MenuItemCardState extends State<MenuItemCard> {
       child: Text(
         widget.item.title,
         style: Theme.of(context).textTheme.titleMedium,
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }
@@ -57,9 +58,7 @@ class _MenuItemCardState extends State<MenuItemCard> {
   Widget _buildQuantityControls() {
     return SizedBox(
       height: 24,
-      child: showQuantityButtons
-          ? _buildQuantitySelector()
-          : _buildBuyButton(),
+      child: showQuantityButtons ? _buildQuantitySelector() : _buildBuyButton(),
     );
   }
 
@@ -109,23 +108,22 @@ class _MenuItemCardState extends State<MenuItemCard> {
     required IconData icon,
     required VoidCallback onPressed,
   }) {
-    return Expanded(
-      child: SizedBox(
-        height: 24,
-        child: Ink(
-          decoration: const ShapeDecoration(
-            color: AppColors.blue,
-            shape: CircleBorder(),
+    return SizedBox(
+      height: 24,
+      width: 24,
+      child: Ink(
+        decoration: const ShapeDecoration(
+          color: AppColors.blue,
+          shape: CircleBorder(),
+        ),
+        child: IconButton(
+          onPressed: onPressed,
+          icon: Icon(
+            icon,
+            size: 9,
           ),
-          child: IconButton(
-            onPressed: onPressed,
-            icon: Icon(
-              icon,
-              size: 9,
-            ),
-            color: AppColors.white,
-            padding: EdgeInsets.zero,
-          ),
+          color: AppColors.white,
+          padding: EdgeInsets.zero,
         ),
       ),
     );
@@ -144,7 +142,10 @@ class _MenuItemCardState extends State<MenuItemCard> {
         alignment: Alignment.center,
         child: Text(
           '$_quantity',
-          style: Theme.of(context).textTheme.labelMedium!.copyWith(color: AppColors.white),
+          style: Theme.of(context)
+              .textTheme
+              .labelMedium!
+              .copyWith(color: AppColors.white),
         ),
       ),
     );
@@ -166,7 +167,10 @@ class _MenuItemCardState extends State<MenuItemCard> {
         child: Center(
           child: Text(
             '${widget.item.price} руб',
-            style: Theme.of(context).textTheme.labelMedium!.copyWith(color: AppColors.white),
+            style: Theme.of(context)
+                .textTheme
+                .labelMedium!
+                .copyWith(color: AppColors.white),
           ),
         ),
       ),
