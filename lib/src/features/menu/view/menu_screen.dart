@@ -119,11 +119,11 @@ class _MenuScreenState extends State<MenuScreen> {
     final categoryIndex = category.categoryId;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0),
-      child: ElevatedButton(
+      child: TextButton(
         onPressed: () {
           _scrollToCategory(categoryIndex);
         },
-        style: ElevatedButton.styleFrom(
+        style: TextButton.styleFrom(
           backgroundColor: categoryIndex == currentCategoryIndex
               ? AppColors.blue
               : AppColors.white,

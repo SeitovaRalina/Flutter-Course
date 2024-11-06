@@ -130,22 +130,23 @@ class _MenuItemCardState extends State<MenuItemCard> {
   }
 
   Widget _buildQuantityDisplay() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: Container(
-        height: 24,
-        width: 52,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          color: AppColors.blue,
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          '$_quantity',
-          style: Theme.of(context)
-              .textTheme
-              .labelMedium!
-              .copyWith(color: AppColors.white),
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Container(
+          height: 24,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: AppColors.blue,
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            '$_quantity',
+            style: Theme.of(context)
+                .textTheme
+                .labelMedium!
+                .copyWith(color: AppColors.white),
+          ),
         ),
       ),
     );

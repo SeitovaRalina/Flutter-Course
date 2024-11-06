@@ -5,6 +5,7 @@ final theme = ThemeData(
   useMaterial3: true,
   scaffoldBackgroundColor: AppColors.background,
   cardTheme: const CardTheme(
+    elevation: 0,
     color: AppColors.white,
   ),
   textTheme: const TextTheme(
