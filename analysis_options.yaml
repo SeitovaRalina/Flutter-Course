@@ -33,6 +33,7 @@ analyzer:
     cancel_subscriptions: error
     valid_regexps: error
     always_require_non_null_named_parameters: error
+    depend_on_referenced_packages: ignore
 
 linter:
   rules:
