@@ -12,42 +12,52 @@ class MenuScreen extends StatefulWidget {
 
 class _MenuScreenState extends State<MenuScreen> {
   final ScrollController _categoryScrollController = ScrollController();
-  final ScrollController _scrollController = ScrollController();
+  final ScrollController _menuScrollController = ScrollController();
+  final List<GlobalKey> categoryKeys = [];
   int currentCategoryIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_scrollListener);
+    for (var _ in categories) {
+      categoryKeys.add(GlobalKey());
+    }
+    _menuScrollController.addListener(_menuScrollListener);
   }
 
   @override
   void dispose() {
-    _scrollController.removeListener(_scrollListener);
-    _scrollController.dispose();
+    _menuScrollController.removeListener(_menuScrollListener);
+    _menuScrollController.dispose();
     _categoryScrollController.dispose();
     super.dispose();
   }
 
-  void _scrollListener() {
-    double offset = _scrollController.offset;
-    int newIndex = (offset / 300).floor();
+  void _menuScrollListener() {
+    for (int i = 0; i < categoryKeys.length; i++) {
+      final RenderBox? renderBox =
+          categoryKeys[i].currentContext?.findRenderObject() as RenderBox?;
+      if (renderBox != null) {
+        final position = renderBox.localToGlobal(Offset.zero).dy;
 
-    if (newIndex != currentCategoryIndex) {
-      setState(() {
-        currentCategoryIndex = newIndex;
-      });
-      double screenWidth = MediaQuery.of(context).size.width;
-      double categoryWidth = categories.length * 200;
-
-      double categoryPosition = newIndex * 120.0 - (screenWidth - 120.0) / 2.0;
-
-      _categoryScrollController.animateTo(
-        categoryPosition.clamp(0, categoryWidth - screenWidth),
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
+        if (position >= 0 && position <= MediaQuery.of(context).size.height) {
+          setState(() {
+            currentCategoryIndex = i;
+          });
+          break;
+        }
+      }
     }
+
+    double screenWidth = MediaQuery.of(context).size.width;
+    double categoryPosition =
+        currentCategoryIndex * 120.0 - (screenWidth - 120.0) / 2.0;
+
+    _categoryScrollController.animateTo(
+      categoryPosition.clamp(0, categories.length * 200 - screenWidth),
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 
   void _scrollToCategory(int index) {
@@ -55,9 +65,23 @@ class _MenuScreenState extends State<MenuScreen> {
       currentCategoryIndex = index;
     });
 
-    double scrollTo = index * 500;
-    _scrollController.jumpTo(
-      scrollTo,
+    final keyContext = categoryKeys[index].currentContext;
+    if (keyContext != null) {
+      Scrollable.ensureVisible(
+        keyContext,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    } else {
+      _menuScrollController.jumpTo(
+          index * (MediaQuery.of(context).size.height / categories.length));
+    }
+
+    double offset = index * 90.0;
+    _categoryScrollController.animateTo(
+      offset,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
     );
   }
 
@@ -78,10 +102,10 @@ class _MenuScreenState extends State<MenuScreen> {
             ),
             Expanded(
               child: ListView.builder(
-                controller: _scrollController,
+                controller: _menuScrollController,
                 itemCount: categories.length,
                 itemBuilder: (context, index) {
-                  return MenuCategories(categoryIndex: index);
+                  return _buildCategoryItem(index);
                 },
               ),
             ),
@@ -117,6 +141,13 @@ class _MenuScreenState extends State<MenuScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildCategoryItem(int index) {
+    return SizedBox(
+      key: categoryKeys[index],
+      child: MenuCategories(categoryIndex: index),
     );
   }
 }
