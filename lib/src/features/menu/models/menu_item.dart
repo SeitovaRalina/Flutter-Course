@@ -88,6 +88,12 @@ const List<MenuItem> menuItems = [
     imagePath: ImageSources.authorsDrink,
   ),
   MenuItem(
+    categoryId: 3,
+    title: 'Сезонный',
+    price: 305,
+    imagePath: ImageSources.authorsDrink,
+  ),
+  MenuItem(
     categoryId: 4,
     title: 'Чизкейк',
     price: 300,
@@ -95,6 +101,11 @@ const List<MenuItem> menuItems = [
   MenuItem(
     categoryId: 4,
     title: 'Тирамису',
+    price: 300,
+  ),
+  MenuItem(
+    categoryId: 4,
+    title: 'Брауни',
     price: 300,
   ),
 ];
