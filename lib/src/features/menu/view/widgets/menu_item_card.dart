@@ -37,8 +37,8 @@ class _MenuItemCardState extends State<MenuItemCard> {
   }
 
   Widget _buildImage() {
-    return Image.asset(
-      widget.item.imagePath ?? ImageSources.placeholder,
+    return Image.network(
+      widget.item.imageUrl ?? ImageSources.placeholder,
       height: 100,
       fit: BoxFit.contain,
     );
@@ -48,7 +48,7 @@ class _MenuItemCardState extends State<MenuItemCard> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Text(
-        widget.item.title,
+        widget.item.name,
         style: Theme.of(context).textTheme.titleMedium,
         overflow: TextOverflow.ellipsis,
       ),
@@ -167,7 +167,7 @@ class _MenuItemCardState extends State<MenuItemCard> {
         ),
         child: Center(
           child: Text(
-            '${widget.item.price} руб',
+            '${widget.item.price} ₽',
             style: Theme.of(context)
                 .textTheme
                 .labelMedium!
