@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_course/src/features/menu/bloc/menu_bloc.dart';
 import 'package:flutter_course/src/features/menu/models/menu_category.dart';
 import 'package:flutter_course/src/features/menu/view/widgets/menu_categories.dart';
 import 'package:flutter_course/src/theme/app_colors.dart';
@@ -21,21 +23,28 @@ class _MenuScreenState extends State<MenuScreen> {
   void initState() {
     super.initState();
 
+    context.read<MenuBloc>().add(const CategoryLoadingStarted());
+
     _itemListener.itemPositions.addListener(() {
       final positions = _itemListener.itemPositions.value;
 
       if (positions.isNotEmpty) {
         final firstVisibleIndex = positions.first.index;
-        final lastVisibleIndex = positions.last.index;
+        bool isLastVisibleItem = positions
+            .any((e) => e.itemTrailingEdge > 0.8 || e.itemLeadingEdge > 0);
+        final nextItems = context
+            .read<MenuBloc>()
+            .state
+            .items
+            .where((e) => e.category.id - 1 == currentCategoryIndex + 1)
+            .toList();
 
-        if (lastVisibleIndex == categories.length - 1 &&
-            positions.last.itemTrailingEdge == 1) {
-          _setCurrentCategoryIndex(lastVisibleIndex);
-        } else {
-          if (currentCategoryIndex != firstVisibleIndex) {
-            _setCurrentCategoryIndex(firstVisibleIndex);
-            _scrollHorizontalToCategory(firstVisibleIndex);
-          }
+        if (currentCategoryIndex != firstVisibleIndex) {
+          _setCurrentCategoryIndex(firstVisibleIndex);
+          _scrollHorizontalToCategory(firstVisibleIndex);
+        }
+        if (isLastVisibleItem && nextItems.isEmpty) {
+          context.read<MenuBloc>().add(const PageLoadingStarted());
         }
       }
     });
@@ -65,39 +74,51 @@ class _MenuScreenState extends State<MenuScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        body: Column(
-          children: [
-            SizedBox(
-              height: 40,
-              child: ScrollablePositionedList.builder(
-                itemScrollController: _categoryScrollController,
-                scrollDirection: Axis.horizontal,
-                itemCount: categories.length,
-                itemBuilder: (context, index) {
-                  return _buildCategoryButton(categories[index]);
-                },
+    return BlocBuilder<MenuBloc, MenuState>(
+      buildWhen: (context, state) => state.status == MenuStatus.idle,
+      builder: (context, state) {
+        if (state.status != MenuStatus.error) {
+          return SafeArea(
+            child: Scaffold(
+              body: Column(
+                children: [
+                  SizedBox(
+                    height: 40,
+                    child: ScrollablePositionedList.builder(
+                      itemScrollController: _categoryScrollController,
+                      scrollDirection: Axis.horizontal,
+                      itemCount: state.categories.length,
+                      itemBuilder: (context, index) {
+                        return _buildCategoryButton(state.categories[index]);
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: ScrollablePositionedList.builder(
+                      itemScrollController: _menuScrollController,
+                      itemPositionsListener: _itemListener,
+                      itemCount: state.categories.length,
+                      itemBuilder: (context, index) {
+                        final category = state.categories[index];
+                        final items = state.items
+                            .where((e) => e.category.id == category.id)
+                            .toList();
+                        return MenuCategories(category: category, items: items);
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
-            Expanded(
-              child: ScrollablePositionedList.builder(
-                itemScrollController: _menuScrollController,
-                itemPositionsListener: _itemListener,
-                itemCount: categories.length,
-                itemBuilder: (context, index) {
-                  return MenuCategories(categoryIndex: index);
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
+          );
+        }
+        return const Center(child: CircularProgressIndicator(color: AppColors.blue));
+      },
     );
   }
 
   Widget _buildCategoryButton(MenuCategory category) {
-    final categoryIndex = category.categoryId;
+    final categoryIndex = category.id - 1;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0),
       child: TextButton(
@@ -116,7 +137,7 @@ class _MenuScreenState extends State<MenuScreen> {
           padding: const EdgeInsets.all(8.0),
         ),
         child: Text(
-          category.title,
+          category.name,
           style: TextStyle(
             color: categoryIndex == currentCategoryIndex
                 ? AppColors.white
