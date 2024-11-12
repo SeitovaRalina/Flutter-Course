@@ -35,6 +35,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
       _loadMenuItems,
       transformer: throttleDroppable(throttleDuration),
     );
+    on<OneCategoryLoadingStarted>(_loadMenuItemsFromOneCategory);
   }
 
   MenuCategory? _currentPaginatedCategory;
@@ -128,4 +129,43 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
       );
     }
   }
+
+Future<void> _loadMenuItemsFromOneCategory(OneCategoryLoadingStarted event, Emitter<MenuState> emit) async {
+    MenuCategory? currentCategory = event.category;
+
+    emit(
+      state.copyWith(items: state.items, status: MenuStatus.progress),
+    );
+    try {
+      final items = await _menuRepository.loadMenuItems(
+        category: currentCategory,
+        limit: _pageLimit,
+      );
+      emit(
+        state.copyWith(
+          categories: state.categories,
+          items: List.of(state.items)..addAll(items),
+          status: MenuStatus.success,
+        ),
+      );
+    } on Object {
+      emit(
+        state.copyWith(
+          categories: state.categories,
+          items: state.items,
+          status: MenuStatus.error,
+        ),
+      );
+      rethrow;
+    } finally {
+      emit(
+        state.copyWith(
+          categories: state.categories,
+          items: state.items,
+          status: MenuStatus.idle,
+        ),
+      );
+    }
+  }
+
 }

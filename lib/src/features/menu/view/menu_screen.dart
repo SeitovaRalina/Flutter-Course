@@ -59,16 +59,18 @@ class _MenuScreenState extends State<MenuScreen> {
   void _scrollVerticalToCategory(int index) {
     _menuScrollController.scrollTo(
       index: index,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
+      duration: const Duration(milliseconds: 1000),
+      curve: Curves.easeOut,
+      opacityAnimationWeights: [20, 20, 60],
     );
   }
 
   void _scrollHorizontalToCategory(int index) {
     _categoryScrollController.scrollTo(
       index: index,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
+      duration: const Duration(milliseconds: 1000),
+      curve: Curves.easeOut,
+      opacityAnimationWeights: [20, 20, 60],
     );
   }
 
@@ -112,7 +114,8 @@ class _MenuScreenState extends State<MenuScreen> {
             ),
           );
         }
-        return const Center(child: CircularProgressIndicator(color: AppColors.blue));
+        return const Center(
+            child: CircularProgressIndicator(color: AppColors.blue));
       },
     );
   }
@@ -123,6 +126,7 @@ class _MenuScreenState extends State<MenuScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 4.0),
       child: TextButton(
         onPressed: () {
+          context.read<MenuBloc>().add(OneCategoryLoadingStarted(category));
           _setCurrentCategoryIndex(categoryIndex);
           _scrollVerticalToCategory(categoryIndex);
           _scrollHorizontalToCategory(categoryIndex);
