@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_course/src/features/menu/models/menu_item.dart';
 import 'package:flutter_course/src/theme/app_colors.dart';
@@ -36,13 +37,14 @@ class _MenuItemCardState extends State<MenuItemCard> {
     );
   }
 
-  Widget _buildImage() {
-    return Image.network(
-      widget.item.imageUrl ?? ImageSources.placeholder,
-      height: 100,
-      fit: BoxFit.contain,
-    );
-  }
+Widget _buildImage() {
+  return CachedNetworkImage(
+    imageUrl: widget.item.imageUrl ?? ImageSources.placeholder,
+    height: 100,
+    fit: BoxFit.contain,
+    placeholder: (context, url) => const Center(child: CircularProgressIndicator(color: AppColors.blue)),
+  );
+}
 
   Widget _buildTitle() {
     return Padding(

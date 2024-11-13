@@ -43,6 +43,7 @@ dependencies:
   stream_transform: ^2.1.0
   bloc_concurrency: ^0.2.5
   flutter_bloc: ^8.1.6
+  cached_network_image: ^3.4.1
 
 dev_dependencies:
   flutter_test:
