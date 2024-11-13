@@ -30,18 +30,23 @@ class _MenuScreenState extends State<MenuScreen> {
 
       if (positions.isNotEmpty) {
         final firstVisibleIndex = positions.first.index;
+        final lastVisibleIndex = positions.last.index;
+        final currentState = context.read<MenuBloc>().state;
+
         bool isLastVisibleItem = positions
             .any((e) => e.itemTrailingEdge > 0.8 || e.itemLeadingEdge > 0);
-        final nextItems = context
-            .read<MenuBloc>()
-            .state
-            .items
+        final nextItems = currentState.items
             .where((e) => e.category.id - 1 == currentCategoryIndex + 1)
             .toList();
 
-        if (currentCategoryIndex != firstVisibleIndex) {
-          _setCurrentCategoryIndex(firstVisibleIndex);
-          _scrollHorizontalToCategory(firstVisibleIndex);
+        if (lastVisibleIndex == currentState.categories.length - 1 &&
+            positions.last.itemTrailingEdge == 1) {
+          _setCurrentCategoryIndex(lastVisibleIndex);
+        } else {
+          if (currentCategoryIndex != firstVisibleIndex) {
+            _setCurrentCategoryIndex(firstVisibleIndex);
+            _scrollHorizontalToCategory(firstVisibleIndex);
+          }
         }
         if (isLastVisibleItem && nextItems.isEmpty) {
           context.read<MenuBloc>().add(const PageLoadingStarted());
@@ -68,9 +73,7 @@ class _MenuScreenState extends State<MenuScreen> {
   void _scrollHorizontalToCategory(int index) {
     _categoryScrollController.scrollTo(
       index: index,
-      duration: const Duration(milliseconds: 1000),
-      curve: Curves.easeOut,
-      opacityAnimationWeights: [20, 20, 60],
+      duration: const Duration(milliseconds: 500),
     );
   }
 
@@ -115,7 +118,8 @@ class _MenuScreenState extends State<MenuScreen> {
           );
         }
         return const Center(
-            child: CircularProgressIndicator(color: AppColors.blue));
+          child: CircularProgressIndicator(color: AppColors.blue),
+        );
       },
     );
   }
@@ -126,7 +130,6 @@ class _MenuScreenState extends State<MenuScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 4.0),
       child: TextButton(
         onPressed: () {
-          context.read<MenuBloc>().add(OneCategoryLoadingStarted(category));
           _setCurrentCategoryIndex(categoryIndex);
           _scrollVerticalToCategory(categoryIndex);
           _scrollHorizontalToCategory(categoryIndex);

@@ -10,6 +10,8 @@ import 'package:stream_transform/stream_transform.dart';
 part 'menu_event.dart';
 part 'menu_state.dart';
 
+const int _pageLimit = 25;
+
 const throttleDuration = Duration(milliseconds: 100);
 
 EventTransformer<E> throttleDroppable<E>(Duration duration) {
@@ -35,14 +37,15 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
       _loadMenuItems,
       transformer: throttleDroppable(throttleDuration),
     );
-    on<OneCategoryLoadingStarted>(_loadMenuItemsFromOneCategory);
   }
 
   MenuCategory? _currentPaginatedCategory;
   int _currentPage = 0;
-  final int _pageLimit = 25;
 
-  Future<void> _loadCategories(CategoryLoadingStarted event, Emitter<MenuState> emit) async {
+  Future<void> _loadCategories(
+    CategoryLoadingStarted event,
+    Emitter<MenuState> emit,
+  ) async {
     emit(
       state.copyWith(items: state.items, status: MenuStatus.progress),
     );
@@ -78,7 +81,10 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
     }
   }
 
-  Future<void> _loadMenuItems(PageLoadingStarted event, Emitter<MenuState> emit) async {
+  Future<void> _loadMenuItems(
+    PageLoadingStarted event,
+    Emitter<MenuState> emit,
+  ) async {
     List<MenuCategory>? categories = state.categories;
 
     _currentPaginatedCategory ??= categories.first;
@@ -93,15 +99,15 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
         page: _currentPage,
         limit: _pageLimit,
       );
+      _currentPage++;
       if (items.length < _pageLimit) {
-        _currentPage++;
-      }
-      if (_currentPaginatedCategory != categories.last) {
+        if (_currentPaginatedCategory != categories.last) {
           int nextPaginatedCategoryIndex =
               categories.indexOf(_currentPaginatedCategory!) + 1;
 
           _currentPaginatedCategory = categories[nextPaginatedCategoryIndex];
           _currentPage = 0;
+        }
       }
       emit(
         state.copyWith(
@@ -129,43 +135,4 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
       );
     }
   }
-
-Future<void> _loadMenuItemsFromOneCategory(OneCategoryLoadingStarted event, Emitter<MenuState> emit) async {
-    MenuCategory? currentCategory = event.category;
-
-    emit(
-      state.copyWith(items: state.items, status: MenuStatus.progress),
-    );
-    try {
-      final items = await _menuRepository.loadMenuItems(
-        category: currentCategory,
-        limit: _pageLimit,
-      );
-      emit(
-        state.copyWith(
-          categories: state.categories,
-          items: List.of(state.items)..addAll(items),
-          status: MenuStatus.success,
-        ),
-      );
-    } on Object {
-      emit(
-        state.copyWith(
-          categories: state.categories,
-          items: state.items,
-          status: MenuStatus.error,
-        ),
-      );
-      rethrow;
-    } finally {
-      emit(
-        state.copyWith(
-          categories: state.categories,
-          items: state.items,
-          status: MenuStatus.idle,
-        ),
-      );
-    }
-  }
-
 }
