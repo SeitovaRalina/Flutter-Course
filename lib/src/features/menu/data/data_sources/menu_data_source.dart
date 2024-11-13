@@ -1,4 +1,4 @@
-import 'package:flutter_course/src/common/network/network_client.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_course/src/features/menu/models/dto/menu_item_dto.dart';
 
 abstract interface class IMenuDataSource {
@@ -10,9 +10,9 @@ abstract interface class IMenuDataSource {
 }
 
 final class NetworkMenuDataSource implements IMenuDataSource {
-  final INetworkClient _client;
+  final Dio _dio;
 
-  const NetworkMenuDataSource(this._client);
+  const NetworkMenuDataSource(Dio dio) : _dio = dio;
 
   @override
   Future<List<MenuItemDto>> fetchMenuItems({
@@ -20,7 +20,29 @@ final class NetworkMenuDataSource implements IMenuDataSource {
     int page = 0,
     int limit = 25,
   }) async {
-    final response = await _client.getAllProductsByCategory(categoryId, limit, page);
-    return response.map((item) => MenuItemDto.fromJson(item as Map<String, dynamic>)).toList();
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(
+        '/products',
+        queryParameters: {
+          'category': '$categoryId',
+          'page': '$page',
+          'limit': '$limit',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data!['data'] as List<dynamic>;
+
+        return data
+            .map((item) => MenuItemDto.fromJson(item as Map<String, dynamic>))
+            .toList();
+      } else {
+        throw Exception('An unexpected response status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      throw Exception('Failed to fetch categories: ${e.message}');
+    } catch (e) {
+      throw Exception('An unexpected error occurred: ${e.toString()}');
+    }
   }
 }

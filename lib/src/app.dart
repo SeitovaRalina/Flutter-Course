@@ -1,5 +1,5 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_course/src/common/network/network_client.dart';
 import 'package:flutter_course/src/features/menu/bloc/menu_bloc.dart';
 import 'package:flutter_course/src/features/menu/data/category_repository.dart';
 import 'package:flutter_course/src/features/menu/data/data_sources/categories_data_source.dart';
@@ -17,14 +17,17 @@ class CoffeeShopApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dioClient = CoffeeShopNetworkClient();
-
+    final dioClient = Dio(
+      BaseOptions(
+        baseUrl: 'https://coffeeshop.academy.effective.band/api/v1',
+        headers: {'Content-Type': 'application/json'},
+      ),
+    );
     MenuRepository menuRepository = MenuRepository(
       networkMenuDataSource: NetworkMenuDataSource(dioClient),
     );
     CategoriesRepository categoriesRepository = CategoriesRepository(
       networkCategoriesDataSource: NetworkCategoriesDataSource(dioClient),
-
     );
     return MaterialApp(
       locale: DevicePreview.locale(context),

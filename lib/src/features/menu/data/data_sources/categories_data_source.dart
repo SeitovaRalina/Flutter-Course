@@ -1,4 +1,4 @@
-import 'package:flutter_course/src/common/network/network_client.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_course/src/features/menu/models/dto/menu_category_dto.dart';
 
 abstract interface class ICategoriesDataSource {
@@ -6,13 +6,28 @@ abstract interface class ICategoriesDataSource {
 }
 
 final class NetworkCategoriesDataSource implements ICategoriesDataSource {
-  final INetworkClient _client;
+  final Dio _dio;
 
-  const NetworkCategoriesDataSource(INetworkClient client): _client = client;
+  const NetworkCategoriesDataSource(Dio dio) : _dio = dio;
 
   @override
-  Future<List<MenuCategoryDto>> fetchCategories() async {
-    final response = await _client.getAllCategories();
-    return response.map((item) => MenuCategoryDto.fromJson(item as Map<String, dynamic>)).toList();
+   Future<List<MenuCategoryDto>> fetchCategories() async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>('/products/categories');
+
+      if (response.statusCode == 200) {
+        final data = response.data!['data'] as List<dynamic>;
+
+        return data
+            .map((item) => MenuCategoryDto.fromJson(item as Map<String, dynamic>))
+            .toList();
+      } else {
+        throw Exception('An unexpected response status: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      throw Exception('Failed to fetch categories: ${e.message}');
+    } catch (e) {
+      throw Exception('An unexpected error occurred: ${e.toString()}');
+    }
   }
 }
