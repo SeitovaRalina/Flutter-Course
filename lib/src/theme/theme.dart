@@ -8,6 +8,17 @@ final theme = ThemeData(
     elevation: 0,
     color: AppColors.white,
   ),
+  bottomSheetTheme: const BottomSheetThemeData(
+    backgroundColor: AppColors.white,
+    surfaceTintColor: AppColors.white,
+    shadowColor: AppColors.white,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(
+        top: Radius.circular(18),
+      ),
+    ),
+  ),
+  snackBarTheme: const SnackBarThemeData(backgroundColor: AppColors.snackbar),
   textTheme: const TextTheme(
     headlineLarge: TextStyle(
       fontFamily: 'Roboto',
@@ -15,6 +26,20 @@ final theme = ThemeData(
       fontWeight: FontWeight.w600,
       height: 1.2,
       letterSpacing: 0,
+    ),
+    headlineSmall: TextStyle(
+      fontFamily: 'Roboto',
+      fontSize: 24,
+      fontWeight: FontWeight.w500,
+      height: 1.2,
+      letterSpacing: 0,
+    ),
+    titleLarge: TextStyle(
+      fontFamily: 'Roboto',
+      fontSize: 20,
+      fontWeight: FontWeight.w400,
+      height: 1.2,
+      letterSpacing: 0.4,
     ),
     titleMedium: TextStyle(
       fontFamily: 'Roboto',
