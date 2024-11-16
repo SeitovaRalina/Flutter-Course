@@ -32,8 +32,8 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
         super(
           const MenuState(status: MenuStatus.idle, items: [], categories: []),
         ) {
-    on<CategoryLoadingStarted>(_loadCategories);
-    on<PageLoadingStarted>(
+    on<MenuCategoryLoadingStarted>(_loadCategories);
+    on<MenuScreenLoadingStarted>(
       _loadMenuItems,
       transformer: throttleDroppable(throttleDuration),
     );
@@ -43,7 +43,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
   int _currentPage = 0;
 
   Future<void> _loadCategories(
-    CategoryLoadingStarted event,
+    MenuCategoryLoadingStarted event,
     Emitter<MenuState> emit,
   ) async {
     emit(
@@ -59,7 +59,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
         ),
       );
       add(
-        const PageLoadingStarted(),
+        const MenuScreenLoadingStarted(),
       );
     } on Object {
       emit(
@@ -82,7 +82,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
   }
 
   Future<void> _loadMenuItems(
-    PageLoadingStarted event,
+    MenuScreenLoadingStarted event,
     Emitter<MenuState> emit,
   ) async {
     List<MenuCategory>? categories = state.categories;

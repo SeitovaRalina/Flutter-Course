@@ -23,7 +23,12 @@ class _MenuScreenState extends State<MenuScreen> {
   void initState() {
     super.initState();
 
-    context.read<MenuBloc>().add(const CategoryLoadingStarted());
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: AppColors.background,
+      statusBarIconBrightness: Brightness.dark,
+    ),);
+
+    context.read<MenuBloc>().add(const MenuCategoryLoadingStarted());
 
     _itemListener.itemPositions.addListener(() {
       final positions = _itemListener.itemPositions.value;
@@ -49,7 +54,7 @@ class _MenuScreenState extends State<MenuScreen> {
           }
         }
         if (isLastVisibleItem && nextItems.isEmpty) {
-          context.read<MenuBloc>().add(const PageLoadingStarted());
+          context.read<MenuBloc>().add(const MenuScreenLoadingStarted());
         }
       }
     });

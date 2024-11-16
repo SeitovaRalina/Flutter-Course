@@ -4,31 +4,20 @@ sealed class MenuEvent extends Equatable {
   const MenuEvent();
 }
 
-class CategoryLoadingStarted extends MenuEvent {
-  const CategoryLoadingStarted();
+class MenuCategoryLoadingStarted extends MenuEvent {
+  const MenuCategoryLoadingStarted();
 
   @override
-  String toString() => 'CategoryLoadingStarted';
-  @override
-  List<Object> get props => [];
-}
-
-class PageLoadingStarted extends MenuEvent {
-  const PageLoadingStarted();
-
-  @override
-  String toString() => 'PageLoadingStarted';
+  String toString() => 'MenuCategoryLoadingStarted';
   @override
   List<Object> get props => [];
 }
 
-class OneCategoryLoadingStarted extends MenuEvent {
-  const OneCategoryLoadingStarted(this.category);
-  final MenuCategory category;
+class MenuScreenLoadingStarted extends MenuEvent {
+  const MenuScreenLoadingStarted();
 
   @override
-  String toString() => 'OneCategoryLoadingStarted';
-
+  String toString() => 'MenuScreenLoadingStarted';
   @override
-  List<Object> get props => [category];
-} 
+  List<Object> get props => [];
+}
