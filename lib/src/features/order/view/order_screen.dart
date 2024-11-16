@@ -95,12 +95,13 @@ class OrderScreen extends StatelessWidget {
                   context.read<OrderBloc>().add(const OrderPosted());
                 },
                 style: TextButton.styleFrom(
-                    backgroundColor: AppColors.blue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    minimumSize: const Size(double.infinity, 56)),
+                  backgroundColor: AppColors.blue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  minimumSize: const Size(double.infinity, 56),
+                ),
                 child: Text(
                   AppLocalizations.of(context)!.makeOrder,
                   style: Theme.of(context)
