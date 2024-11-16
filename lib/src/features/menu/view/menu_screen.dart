@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_course/src/features/menu/bloc/menu_bloc.dart';
 import 'package:flutter_course/src/features/menu/models/menu_category.dart';
 import 'package:flutter_course/src/features/menu/view/widgets/menu_categories.dart';
+import 'package:flutter_course/src/features/order/bloc/order_bloc.dart';
+import 'package:flutter_course/src/features/order/view/order_screen.dart';
 import 'package:flutter_course/src/theme/app_colors.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -90,34 +94,65 @@ class _MenuScreenState extends State<MenuScreen> {
         if (state.status != MenuStatus.error) {
           return SafeArea(
             child: Scaffold(
-              body: Column(
-                children: [
-                  SizedBox(
-                    height: 40,
-                    child: ScrollablePositionedList.builder(
-                      itemScrollController: _categoryScrollController,
-                      scrollDirection: Axis.horizontal,
-                      itemCount: state.categories.length,
-                      itemBuilder: (context, index) {
-                        return _buildCategoryButton(state.categories[index]);
-                      },
-                    ),
+              appBar: AppBar(
+                backgroundColor: AppColors.background,
+                surfaceTintColor: AppColors.background,
+                titleSpacing: 0,
+                automaticallyImplyLeading: false,
+                title: SizedBox(
+                  height: 36,
+                  child: ScrollablePositionedList.builder(
+                    itemScrollController: _categoryScrollController,
+                    scrollDirection: Axis.horizontal,
+                    itemCount: state.categories.length,
+                    itemBuilder: (context, index) {
+                      return _buildCategoryButton(state.categories[index]);
+                    },
                   ),
-                  Expanded(
-                    child: ScrollablePositionedList.builder(
-                      itemScrollController: _menuScrollController,
-                      itemPositionsListener: _itemListener,
-                      itemCount: state.categories.length,
-                      itemBuilder: (context, index) {
-                        final category = state.categories[index];
-                        final items = state.items
-                            .where((e) => e.category.id == category.id)
-                            .toList();
-                        return MenuCategories(category: category, items: items);
+                ),
+              ),
+              body: ScrollablePositionedList.builder(
+                itemScrollController: _menuScrollController,
+                itemPositionsListener: _itemListener,
+                itemCount: state.categories.length,
+                itemBuilder: (context, index) {
+                  final category = state.categories[index];
+                  final items = state.items
+                      .where((e) => e.category.id == category.id)
+                      .toList();
+                  return MenuCategories(category: category, items: items);
+                },
+              ),
+              floatingActionButton: BlocBuilder<OrderBloc, OrderState>(
+                builder: (context, state) {
+                  if (state.items.isNotEmpty) {
+                    return FloatingActionButton.extended(
+                      onPressed: () {
+                        showModalBottomSheet<void>(
+                          isScrollControlled: true,
+                          context: context,
+                          builder: (_) => BlocProvider.value(
+                            value: context.read<OrderBloc>(),
+                            child: const OrderScreen(),
+                          ),
+                        );
                       },
-                    ),
-                  ),
-                ],
+                      backgroundColor: AppColors.blue,
+                      label: Text(
+                        AppLocalizations.of(context)!.price(state.totalPrice),
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleSmall!
+                            .copyWith(color: AppColors.white),
+                      ),
+                      icon: const Icon(
+                        Icons.local_mall,
+                        color: AppColors.white,
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
               ),
             ),
           );

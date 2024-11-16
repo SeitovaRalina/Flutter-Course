@@ -1,13 +1,16 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_course/src/features/menu/models/menu_item.dart';
+import 'package:flutter_course/src/features/order/bloc/order_bloc.dart';
 import 'package:flutter_course/src/theme/app_colors.dart';
 import 'package:flutter_course/src/theme/image_sources.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MenuItemCard extends StatefulWidget {
   final MenuItem item;
 
-  const MenuItemCard({Key? key, required this.item}) : super(key: key);
+  const MenuItemCard({required this.item, Key? key}) : super(key: key);
 
   @override
   State<MenuItemCard> createState() => _MenuItemCardState();
@@ -20,31 +23,43 @@ class _MenuItemCardState extends State<MenuItemCard> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 180,
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-          child: Column(
-            children: [
-              _buildImage(),
-              _buildTitle(),
-              _buildQuantityControls(),
-            ],
+    return BlocConsumer<OrderBloc, OrderState>(
+      listener: (context, state) {
+        if (state.status == OrderStatus.idle &&
+            !state.items.containsKey(widget.item) &&
+            _quantity > 0) {
+          _quantity = 0;
+        }
+      },
+      builder: (context, state) {
+        return SizedBox(
+          width: 180,
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              child: Column(
+                children: [
+                  _buildImage(),
+                  _buildTitle(),
+                  _buildQuantityControls(),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-Widget _buildImage() {
-  return CachedNetworkImage(
-    imageUrl: widget.item.imageUrl ?? ImageSources.placeholder,
-    height: 100,
-    fit: BoxFit.contain,
-    placeholder: (context, url) => const Center(child: CircularProgressIndicator(color: AppColors.blue)),
-  );
-}
+  Widget _buildImage() {
+    return CachedNetworkImage(
+      imageUrl: widget.item.imageUrl ?? ImageSources.placeholder,
+      height: 100,
+      fit: BoxFit.contain,
+      placeholder: (context, url) =>
+          const Center(child: CircularProgressIndicator(color: AppColors.blue)),
+    );
+  }
 
   Widget _buildTitle() {
     return Padding(
@@ -81,7 +96,12 @@ Widget _buildImage() {
       icon: Icons.remove,
       onPressed: () {
         setState(() {
-          if (_quantity > 0) _quantity--;
+          if (_quantity > 0) {
+            _quantity--;
+            context
+                .read<OrderBloc>()
+                .add(OrderItemCountChanged(widget.item, _quantity));
+          }
         });
       },
     );
@@ -94,10 +114,20 @@ Widget _buildImage() {
         setState(() {
           if (_quantity < 10) {
             _quantity++;
+            context
+                .read<OrderBloc>()
+                .add(OrderItemCountChanged(widget.item, _quantity));
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Превышено количество товаров в корзине'),
+              SnackBar(
+                duration: const Duration(seconds: 2),
+                content: Text(
+                  AppLocalizations.of(context)!.increaseItemQuantityFailure,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge!
+                      .copyWith(color: AppColors.white),
+                ),
               ),
             );
           }
@@ -162,6 +192,9 @@ Widget _buildImage() {
           setState(() {
             _quantity = 1;
           });
+          context
+              .read<OrderBloc>()
+              .add(OrderItemCountChanged(widget.item, _quantity));
         },
         style: TextButton.styleFrom(
           backgroundColor: AppColors.blue,
